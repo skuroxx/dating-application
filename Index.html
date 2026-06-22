@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Question Worth Asking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fbc5d8 0%, #e1bfe7 50%, #c3cfe2 100%);
+            --primary-color: #4a2840;
+            --secondary-color: #8a5a7f;
+            --accent-color: #ff6b8b;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+            color: var(--primary-color);
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            min-height: 550px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        .heart-icon {
+            font-size: 24px;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.1rem;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--secondary-color);
+            margin-bottom: 35px;
+            font-weight: 600;
+        }
+
+        /* Buttons Setup */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 14px 28px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            flex: 1;
+            box-shadow: 0 4px 15px rgba(74, 40, 64, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 40, 64, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--primary-color);
+            border: 1px solid rgba(0,0,0,0.05);
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Screen 1 specific playfulness */
+        #btn-no {
+            position: relative;
+        }
+
+        /* Screen 2: Calendar layout */
+        .calendar-container {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .calendar-month {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .weekday {
+            font-size: 0.75rem;
+            color: var(--secondary-color);
+            font-weight: 600;
+            padding: 8px 0;
+        }
+
+        .day {
+            font-size: 0.85rem;
+            padding: 10px 0;
+            border-radius: 50%;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day:not(.empty):hover {
+            background: rgba(74, 40, 64, 0.1);
+        }
+
+        .day.selected {
+            background: var(--primary-color) !important;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Screen 3: Time Selection */
+        .time-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .time-option {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0,0,0,0.03);
+            border-radius: 16px;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-option:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(4px);
+        }
+
+        .time-option.selected {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .time-label {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .time-value {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Screen 4: Food Grid */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .food-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0,0,0,0.03);
+            border-radius: 16px;
+            padding: 15px 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .food-card:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.03);
+        }
+
+        .food-card.selected {
+            background: white;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+
+        .food-emoji {
+            font-size: 1.5rem;
+        }
+
+        .food-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .craving-footer {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            min-height: 18px;
+        }
+
+        /* Screen 5: Final Summary Layout */
+        .summary-box {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            width: 100%;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: left;
+            border: 1px dashed rgba(74, 40, 64, 0.2);
+        }
+
+        .summary-item {
+            margin-bottom: 16px;
+        }
+
+        .summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--secondary-color);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .summary-value {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .love-quote {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="screen-proposal" class="screen active">
+            <div class="heart-icon">❤️</div>
+            <h1>Will you go on a date with me?</h1>
+            <p class="subtitle">A question worth asking</p>
+            <div class="btn-group">
+                <button class="btn-primary" id="btn-yes">Yes</button>
+                <button class="btn-secondary" id="btn-no">No</button>
+            </div>
+        </div>
+
+        <div id="screen-date" class="screen">
+            <div class="heart-icon">📅</div>
+            <h1>When are you free?</h1>
+            <p class="subtitle">Pick a date</p>
+            
+            <div class="calendar-container">
+                <div class="calendar-month">JUNE 2026</div>
+                <div class="calendar-grid">
+                    <div class="weekday">Su</div><div class="weekday">Mo</div><div class="weekday">Tu</div>
+                    <div class="weekday">We</div><div class="weekday">Th</div><div class="weekday">Fr</div><div class="weekday">Sa</div>
+                    
+                    <div class="day empty"></div>
+                    <div class="day" data-day="1">1</div><div class="day" data-day="2">2</div><div class="day" data-day="3">3</div>
+                    <div class="day" data-day="4">4</div><div class="day" data-day="5">5</div><div class="day" data-day="6">6</div>
+                    <div class="day" data-day="7">7</div><div class="day" data-day="8">8</div><div class="day" data-day="9">9</div>
+                    <div class="day" data-day="10">10</div><div class="day" data-day="11">11</div><div class="day" data-day="12">12</div>
+                    <div class="day" data-day="13">13</div><div class="day" data-day="14">14</div><div class="day" data-day="15">15</div>
+                    <div class="day" data-day="16">16</div><div class="day" data-day="17">17</div><div class="day" data-day="18">18</div>
+                    <div class="day" data-day="19">19</div><div class="day" data-day="20">20</div><div class="day" data-day="21">21</div>
+                    <div class="day" data-day="22">22</div><div class="day" data-day="23">23</div><div class="day" data-day="24">24</div>
+                    <div class="day" data-day="25">25</div><div class="day" data-day="26">26</div><div class="day" data-day="27">27</div>
+                    <div class="day" data-day="28">28</div><div class="day" data-day="29">29</div><div class="day" data-day="30">30</div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" id="next-to-time" style="width: 100%; display: none;">Continue</button>
+        </div>
+
+        <div id="screen-time" class="screen">
+            <div class="heart-icon">⏰</div>
+            <h1>What time?</h1>
+            <p class="subtitle">Choose your hour</p>
+            
+            <div class="time-list">
+                <div class="time-option" data-time="7:00 PM">
+                    <span class="time-label">Evening</span>
+                    <span class="time-value">7:00 PM</span>
+                </div>
+                <div class="time-option" data-time="8:30 PM">
+                    <span class="time-label">Night</span>
+                    <span class="time-value">8:30 PM</span>
+                </div>
+                <div class="time-option" data-time="10:00 PM">
+                    <span class="time-label">Late Night</span>
+                    <span class="time-value">10:00 PM</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-food" class="screen">
+            <div class="heart-icon">✨</div>
+            <h1>What are we feeling?</h1>
+            <p class="subtitle">Pick one or more</p>
+            
+            <div class="food-grid">
+                <div class="food-card" data-food="Sushi">
+                    <span class="food-emoji">🍣</span><span class="food-name">Sushi</span>
+                </div>
+                <div class="food-card" data-food="Pasta">
+                    <span class="food-emoji">🍝</span><span class="food-name">Pasta</span>
+                </div>
+                <div class="food-card" data-food="Pizza">
+                    <span class="food-emoji">🍕</span><span class="food-name">Pizza</span>
+                </div>
+                <div class="food-card" data-food="Biryani">
+                    <span class="food-emoji">🍛</span><span class="food-name">Biryani</span>
+                </div>
+                <div class="food-card" data-food="Kababs">
+                    <span class="food-emoji">🍢</span><span class="food-name">Kababs</span>
+                </div>
+                <div class="food-card" data-food="Tacos">
+                    <span class="food-emoji">🌮</span><span class="food-name">Tacos</span>
+                </div>
+                <div class="food-card" data-food="Ramen">
+                    <span class="food-emoji">🍜</span><span class="food-name">Ramen</span>
+                </div>
+                <div class="food-card" data-food="Burgers">
+                    <span class="food-emoji">🍔</span><span class="food-name">Burgers</span>
+                </div>
+                <div class="food-card" data-food="Desserts">
+                    <span class="food-emoji">🍰</span><span class="food-name">Desserts</span>
+                </div>
+            </div>
+
+            <div class="craving-footer" id="craving-summary">select what you're craving</div>
+            <button class="btn-primary" id="btn-finish" style="width: 100%;">Let's go ✨</button>
+        </div>
+
+        <div id="screen-final" class="screen">
+            <div class="heart-icon">💖</div>
+            <h1>It's a date.</h1>
+            <p class="subtitle">Something wonderful awaits</p>
+            
+            <div class="summary-box">
+                <div class="summary-item">
+                    <div class="summary-label">When</div>
+                    <div class="summary-value" id="final-date">Saturday, June 20 @ 7:00 PM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">What we're having</div>
+                    <div class="summary-value" id="final-food">Biryani & Kababs & Desserts</div>
+                </div>
+            </div>
+
+            <p class="love-quote">"Every great love story has a first evening. This is ours."</p>
+            <button class="btn-primary" id="btn-calendar" style="width: 100%;">Add to Calendar</button>
+        </div>
+
+    </div>
+
+    <script>
+        // App State
+        let selectedDate = "20";
+        let selectedTime = "";
+        let selectedFoods = [];
+
+        // Synthesize dynamic clicking sounds using Web Audio API
+        function playClickSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                // Fast linear ramp up for clean click/pop sound architecture
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime); 
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.04);
+                
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.06);
+            } catch (e) {
+                console.log("Audio not supported or waiting for user interaction gesture.");
+            }
+        }
+
+        // Screen Navigation Function
+        function navigateTo(currentId, nextId) {
+            document.getElementById(currentId).classList.remove('active');
+            document.getElementById(nextId).classList.add('active');
+        }
+
+        // --- SCREEN 1: PROPOSAL EVENTS ---
+        document.getElementById('btn-yes').addEventListener('click', () => {
+            playClickSound();
+            navigateTo('screen-proposal', 'screen-date');
+        });
+
+        // Playful runaway mechanism for 'No' button
+        const noBtn = document.getElementById('btn-no');
+        noBtn.addEventListener('mouseover', () => {
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40) - (window.innerWidth/2 - noBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40) - (window.innerHeight/2 - noBtn.offsetHeight);
+            noBtn.style.transform = `translate(${x/3}px, ${y/3}px)`;
+        });
+        noBtn.addEventListener('click', () => {
+            playClickSound();
+            alert("Nice try! Try hitting 'Yes' instead 😉");
+        });
+
+        // --- SCREEN 2: CALENDAR EVENTS ---
+        const days = document.querySelectorAll('.day:not(.empty)');
+        days.forEach(day => {
+            day.addEventListener('click', () => {
+                playClickSound();
+                days.forEach(d => d.classList.remove('selected'));
+                day.classList.add('selected');
+                selectedDate = day.getAttribute('data-day');
+                document.getElementById('next-to-time').style.display = 'block';
+                
+                // Advance automatically after selection like standard premium components
+                setTimeout(() => {
+                    navigateTo('screen-date', 'screen-time');
+                }, 350);
+            });
+        });
+        document.getElementById('next-to-time').addEventListener('click', () => {
+            playClickSound();
+            navigateTo('screen-date', 'screen-time');
+        });
+
+        // --- SCREEN 3: TIME OPTIONS EVENTS ---
+        const timeOptions = document.querySelectorAll('.time-option');
+        timeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                playClickSound();
+                timeOptions.forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedTime = option.getAttribute('data-time');
+                
+                setTimeout(() => {
+                    navigateTo('screen-time', 'screen-food');
+                }, 350);
+            });
+        });
+
+        // --- SCREEN 4: FOOD GRIDS EVENTS ---
+        const foodCards = document.querySelectorAll('.food-card');
+        const cravingSummary = document.getElementById('craving-summary');
+        
+        foodCards.forEach(card => {
+            card.addEventListener('click', () => {
+                playClickSound();
+                const food = card.getAttribute('data-food');
+                
+                if(selectedFoods.includes(food)) {
+                    selectedFoods = selectedFoods.filter(item => item !== food);
+                    card.classList.remove('selected');
+                } else {
+                    selectedFoods.push(food);
+                    card.classList.add('selected');
+                }
+
+                if(selectedFoods.length > 0) {
+                    cravingSummary.innerText = selectedFoods.join(' + ') + " - bold choice!";
+                } else {
+                    cravingSummary.innerText = "select what you're craving";
+                }
+            });
+        });
+
+        document.getElementById('btn-finish').addEventListener('click', () => {
+            playClickSound();
+            if(selectedFoods.length === 0) {
+                alert("Please select at least one thing you're craving! 🍕");
+                return;
+            }
+
+            // Build dynamic display elements for the summary page
+            // Calculating standard day name layout for June 2026
+            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const dateObj = new Date(2026, 5, parseInt(selectedDate)); // June is month index 5
+            const dayOfWeek = dayNames[dateObj.getDay()];
+
+            document.getElementById('final-date').innerText = `${dayOfWeek}, June ${selectedDate} @ ${selectedTime}`;
+            document.getElementById('final-food').innerText = selectedFoods.join(' & ');
+
+            navigateTo('screen-food', 'screen-final');
+        });
+
+        // --- SCREEN 5: CALENDAR LINK OUT ---
+        document.getElementById('btn-calendar').addEventListener('click', () => {
+            playClickSound();
+            alert("📅 Date added successfully to our hearts calendar!");
+        });
+    </script>
+</body>
+</html>
